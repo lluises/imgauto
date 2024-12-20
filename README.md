@@ -10,4 +10,4 @@ pip install python-opencv numpy
 
 # Crop
 
-See [CROP.md](CROP.md) for a detailed explaination 
+See [CROP.md](CROP.md) for a detailed explanation 
