@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+
+import sys
+import argparse
+
+from imgauto import crop
+from imgauto import cli
+
+VERSION = "1.0"
+# VERSION_DATE = "2021-11-23"
+VERSION_DATE = "2021-11-28" # Add parameters and use of new imgauto interface
+
+
+def parse_arguments():
+    parser = cli.argparse_with_banner("crop", VERSION, VERSION_DATE)
+    parser.add_argument('image', type=str,
+                        help='Input image')
+    parser.add_argument('target', type=str,
+                        help='Output image')
+    parser.add_argument('-t', '--tolerance', type=int, dest='tolerance', default=10,
+                        help='Tolerans level (from 0 to 255). Default 10')
+    parser.add_argument('-c', '--color', type=str, dest='color',
+                        help='Grayscale color to remove (0 is black, 255 is white), or "alpha"')
+    parser.add_argument('-q', '--quality', type=int, dest='quality',
+                        help='Quality to export a JPG [0, 100] or PNG [1, 9] (compression)')
+    return parser.parse_args()
+
+def main():
+    params = vars(parse_arguments())
+    if params.get("color") is None:
+        del params["color"]
+    elif params['color'].isdigit():
+        params["color"] = int(params['color'])
+    if params.get("quality") is None:
+        del params["quality"]
+
+    if params.get('tolerance') not in range(0, 256):
+        raise ValueError("Invalid tolerance. It must be between 0 and 255")
+    if params.get('color') and params['color'] != "alpha" and params['color'] not in range(0, 256):
+        raise ValueError("Invalid color. It must be between 0 and 255")
+    if params.get('quality') and params['quality'] not in range(0, 256):
+        raise ValueError("Invalid quality. It must be between 0 and 100 for JPG and between 1 and 9 for PNG")
+
+    org = str(params['image']+"")
+    tar = str(params['target']+"")
+    del params['image']
+    del params['target']
+
+    cropper = crop.ImgAutoCrop(org, tar, **params)
+    cropper.run()
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
